@@ -14,6 +14,7 @@
         "laravel/ui": "^3.4"
     },
     "require-dev": {
+        "barryvdh/laravel-ide-helper": "^2.12",
         "facade/ignition": "^2.5",
         "fakerphp/faker": "^1.9.1",
         "laravel/sail": "^1.0.1",
@@ -26,7 +27,10 @@
             "App\\": "app/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
-        }
+        },
+        "files": [
+            "app/Http/helper.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {
