@@ -29,3 +29,12 @@
 .chat-user-list.active{
     background: #1a1e21;
 }
+.user-status-icon{
+    position: absolute;
+    top: 22px;
+    left: 28px;
+    color: grey;
+}
+.chat-image{
+    position: relative;
+}
