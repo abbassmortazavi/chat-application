@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Message;
 use App\Models\User;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
@@ -11,6 +12,11 @@ use Illuminate\Support\Facades\Auth;
 
 class MessageController extends Controller
 {
+    protected $message;
+    public function __construct(Message $message)
+    {
+        $this->message = $message;
+    }
     /**
      * @param $userId
      * @return Application|Factory|View
@@ -26,5 +32,39 @@ class MessageController extends Controller
         $this->data['userId']= $userId;
         return view('message.conversation' , $this->data);
 
+    }
+    public function sendMessage(Request $request)
+    {
+        $request->validate([
+            'message'=>'required',
+            'receiver_id'=>'required'
+        ]);
+
+        $sender_id = Auth::id();
+        $receiver_id = $request->receiver_id;
+        $this->message->message = $request->message;
+
+        if ($this->message->save())
+        {
+            try {
+                $this->message->users()->attach($sender_id , ['receiver_id']);
+                $sender = User::where('id' , '=' , $sender_id)->first();
+                $data = [];
+                $data['sender_id'] = $sender_id;
+                $data['sender_name'] = $sender->name;
+                $data['receiver_id'] = $sender_id;
+                $data['content'] = $this->message->message;
+                $data['created_at'] = $this->message->created_at;
+                $data['message_id'] = $this->message->id;
+
+                return response()->json([
+                    'data'=>$data,
+                    'success'=>true,
+                    'message'=>'Message SuccessFully Sent'
+                ]);
+            }catch (\Exception $exception){
+                    $this->message->delete();
+            }
+        }
     }
 }
