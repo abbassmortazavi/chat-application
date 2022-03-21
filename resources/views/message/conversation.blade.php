@@ -83,10 +83,17 @@
 @section('scripts')
     <script>
         $(function (){
+            let chatInput = $('.chat-input');
+            let chatInputToolbar = $('.chat-input-toolbar');
+            let chatBody = $('.chat-body');
+
+
             let user_id = "{{ auth()->user()->id }}";
             let ip_address = '127.0.0.1';
             let socket_port = '3000';
             let socket = io(ip_address + ':' + socket_port);
+            let friendId = "{{ $friendInfo->id }}";
+
 
             socket.on('connect', function ( ){
                 socket.emit('user_connected' , user_id);
@@ -109,6 +116,41 @@
                     }
                 });
             });
+            chatInput.keypress(function (e){
+                let message = $(this).html();
+                if (e.which === 13 && !e.shiftKey)
+                {
+                    chatInput.html("");
+                    sendMessage(message);
+                    return false;
+
+                }
+
+            });
+            function sendMessage(message){
+                let url = "{{ route('message.send-message') }}";
+                let form = $(this);
+                let formData = new FormData();
+                let token = "{{ csrf_token() }}";
+
+                formData.append('message' , message);
+                formData.append('_token' , token);
+                formData.append('receiver_id' , friendId);
+
+                $.ajax({
+                    url: url,
+                    type: "POST",
+                    data:formData,
+                    processData: false,
+                    contentType: false,
+                    dataType: 'JSON',
+                    success: function (response) {
+                        if (response.success){
+                            console.log(response.data);
+                        }
+                    }
+                });
+            }
         });
     </script>
 @endsection
