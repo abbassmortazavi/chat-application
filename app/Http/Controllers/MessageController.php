@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\PrivateMessageEvent;
 use App\Models\Message;
 use App\Models\User;
 use Illuminate\Contracts\Foundation\Application;
@@ -82,6 +83,8 @@ class MessageController extends Controller
                 $data['content'] = $this->message->message;
                 $data['created_at'] = $this->message->created_at;
                 $data['message_id'] = $this->message->id;
+
+                event(new PrivateMessageEvent($data));
 
                 return response()->json([
                     'data'=>$data,

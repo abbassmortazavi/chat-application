@@ -1,11 +1,22 @@
 let app = require('express')();
 let http = require('http').Server(app);
 let io = require('socket.io')(http);
+let Redis = require('ioredis');
+let redis = new Redis();
 let users = [];
 
 
 http.listen(3000 , function (){
     console.log('listen to port 3000')
+});
+
+redis.subscribe('private-channel' , function () {
+    console.log('subscribed channel');
+});
+
+redis.on('message' , function (channel , message){
+    console.log(channel);
+    console.log(message);
 });
 
 io.on('connection' , function (socket){
