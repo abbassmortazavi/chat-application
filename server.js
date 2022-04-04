@@ -14,7 +14,8 @@ redis.subscribe('private-channel' , function () {
     console.log('subscribed channel');
 });
 
-redis.on('message' , function (channel , message){
+
+io.on('message' , function (channel , message){
     console.log(channel);
     console.log(message);
 });

@@ -6,14 +6,15 @@ use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Broadcasting\PrivateChannel;
+use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class PrivateMessageEvent implements ShouldQueue
+class PrivateMessageEvent implements ShouldBroadcast
 {
-    use Dispatchable, InteractsWithSockets, SerializesModels;
+    use Dispatchable , InteractsWithSockets, SerializesModels;
 
     public $data;
     /**
@@ -23,6 +24,7 @@ class PrivateMessageEvent implements ShouldQueue
      */
     public function __construct($data)
     {
+        //dd($data);
         $this->data = $data;
     }
 
@@ -31,8 +33,8 @@ class PrivateMessageEvent implements ShouldQueue
      *
      * @return Channel
      */
-    public function broadcastOn(): Channel
+    public function broadcastOn()
     {
-        return new Channel('private-name');
+        return new Channel('private-channel');
     }
 }

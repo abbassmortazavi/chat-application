@@ -123,7 +123,6 @@
                     chatInput.html("");
                     sendMessage(message);
                     return false;
-
                 }
 
             });

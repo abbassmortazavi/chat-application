@@ -21,55 +21,72 @@ class MessageController extends Controller
     {
         $this->message = $message;
     }
+
     /**
      * @param $userId
      * @return Application|Factory|View
      */
     public function conversation($userId)
     {
-        $users = User::where('id' , '!=' , Auth::id())->get();
+        $users = User::where('id', '!=', Auth::id())->get();
         $friendInfo = User::findOrFail($userId);
         $myInfo = User::find(Auth::id());
-        $this->data['users']= $users;
-        $this->data['friendInfo']= $friendInfo;
-        $this->data['myInfo']= $myInfo;
-        $this->data['userId']= $userId;
-        return view('message.conversation' , $this->data);
+        $this->data['users'] = $users;
+        $this->data['friendInfo'] = $friendInfo;
+        $this->data['myInfo'] = $myInfo;
+        $this->data['userId'] = $userId;
+        return view('message.conversation', $this->data);
 
     }
 
     /**
      * @param Request $request
-     * @return JsonResponse
+     * @return JsonResponse|void
      */
     public function sendMessage(Request $request)
     {
         $request->validate([
-            'message'=>'required',
-            'receiver_id'=>'required'
+            'message' => 'required',
+            'receiver_id' => 'required'
         ]);
 
         $sender_id = Auth::id();
         $receiver_id = $request->receiver_id;
 
-        $this->message->message = $request->message;
+        // $this->message->message = $request->message;
 
-        /*$message = new Message();
+        $message = new Message();
         $message->message = $request->message;
 
-        if ($message->save())
-        {
+        if ($message->save()) {
             try {
+                $message->users()->attach($sender_id, ['receiver_id' => $receiver_id]);
+                $sender = User::where('id', $sender_id)->first();
 
-                $message->users()->attach($sender_id , ['receiver_id']);
-            }catch (\Exception $exception){
+                $data = [];
+                $data['sender_id'] = $sender_id;
+                $data['sender_name'] = $sender->name;
+                $data['receiver_id'] = $sender_id;
+                $data['content'] = $message->message;
+                $data['created_at'] = $message->created_at;
+                $data['message_id'] = $message->id;
 
+                event(new PrivateMessageEvent($data));
+                //dispatch(new PrivateMessageEvent($data));
+
+
+                return response()->json([
+                    'data' => $data,
+                    'success' => true,
+                    'message' => 'Message SuccessFully Sent'
+                ]);
+            } catch (\Exception $exception) {
+                $message->delete();
             }
-        }*/
+        }
 
 
-
-        if ($this->message->save())
+        /*if ($this->message->save())
         {
             try {
                 $this->message->users()->attach($sender_id , ['receiver_id'=>$receiver_id]);
@@ -85,6 +102,8 @@ class MessageController extends Controller
                 $data['message_id'] = $this->message->id;
 
                 event(new PrivateMessageEvent($data));
+                //dispatch(new PrivateMessageEvent($data));
+
 
                 return response()->json([
                     'data'=>$data,
@@ -96,6 +115,6 @@ class MessageController extends Controller
                     $this->message->delete();
                     return response()->json($exception);
             }
-        }
+        }*/
     }
 }
